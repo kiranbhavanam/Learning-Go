@@ -1,0 +1,480 @@
+/*
+ 10 Descriptive Questions with Detailed Explanations**  
+Each question is worth **10 marks**, so I’ll provide **in-depth answers** with detailed explanations, examples, and insights.
+
+---
+
+## **1️⃣ How does `io.Reader` work, and why is it useful?**  
+### ✅ **Answer (10 Marks)**
+### **1. Introduction to `io.Reader`**
+- `io.Reader` is an **interface** in Go that defines a **standard way to read data**.
+- It helps **read data as a stream** instead of loading the entire content into memory.
+- It has **one method**:
+  ```go
+  type Reader interface {
+      Read(p []byte) (n int, err error)
+  }
+  ```
+  - `p []byte` → A buffer where the data will be stored.
+  - `n int` → Number of bytes successfully read.
+  - `err error` → Any error encountered (e.g., `io.EOF` when reading is complete).
+
+### **2. Why is it useful?**
+✅ **1. Efficient Memory Usage:**  
+   - Instead of reading an entire file into RAM, you can process it in **small chunks**.  
+✅ **2. Supports Streaming:**  
+   - Useful when working with **large files, network responses, or real-time data**.  
+✅ **3. Works with Multiple Sources:**  
+   - Can read from **files, network sockets, HTTP responses, gzip files**, etc.
+
+### **3. Example: Reading Data Using `io.Reader`**
+```go
+package main
+
+import (
+	"fmt"
+	"io"
+	"strings"
+)
+
+func main() {
+	// Creating a reader from a string
+	reader := strings.NewReader("Hello, Go!")
+
+	// Buffer to store read data
+	buf := make([]byte, 4)
+
+	for {
+		n, err := reader.Read(buf) // Read into buffer
+		if err == io.EOF {
+			break
+		}
+		fmt.Print(string(buf[:n])) // Print read content
+	}
+}
+```
+### **4. Explanation of Code**
+- `strings.NewReader("Hello, Go!")` creates an **`io.Reader`** from a string.
+- We **read 4 bytes at a time** into `buf`.
+- The loop continues until **`io.EOF`** (End of File) is reached.
+
+✅ **Output:**  
+```
+Hell
+o, G
+o!
+```
+✅ **Key Takeaway:**  
+- `io.Reader` allows us to **read data efficiently** in chunks, **reducing memory consumption**.
+
+---
+
+## **2️⃣ What is monotonic time in Go, and why is it important?**  
+### ✅ **Answer (10 Marks)**
+### **1. Understanding Monotonic Time**
+- **Go tracks time in two ways:**
+  1. **Wall Clock Time** → Can be changed (e.g., system time updates).
+  2. **Monotonic Time** → Always increases, even if the system time changes.
+
+- **Why is this important?**
+  - Monotonic time ensures **accurate duration measurements**.
+  - Prevents **issues with time jumps** (e.g., daylight savings, manual clock adjustments).
+
+### **2. Example: Measuring Time Using Monotonic Clock**
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	start := time.Now() // Start timing
+
+	time.Sleep(2 * time.Second) // Simulate work
+
+	elapsed := time.Since(start) // Calculate elapsed time
+	fmt.Println("Elapsed time:", elapsed)
+}
+```
+✅ **Key Takeaways:**
+- **`time.Since(start)` uses monotonic time**, ensuring accurate duration.
+- Even if the system clock changes, the duration **remains correct**.
+
+---
+
+## **3️⃣ How does Go handle JSON marshaling and unmarshaling?**  
+### ✅ **Answer (10 Marks)**
+### **1. What is JSON Marshaling & Unmarshaling?**
+- **Marshaling** → Converts a **Go struct** to **JSON format**.
+- **Unmarshaling** → Converts **JSON format** into a **Go struct**.
+
+### **2. Example: Marshaling JSON**
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type User struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+func main() {
+	u := User{"Alice", "alice@example.com"}
+
+	jsonData, _ := json.Marshal(u)
+	fmt.Println(string(jsonData)) // {"name":"Alice","email":"alice@example.com"}
+}
+```
+✅ **Output:**
+```
+{"name":"Alice","email":"alice@example.com"}
+```
+
+### **3. Example: Unmarshaling JSON**
+```go
+func main() {
+	data := `{"name":"Bob","email":"bob@example.com"}`
+	var u User
+	json.Unmarshal([]byte(data), &u)
+	fmt.Println(u.Name, u.Email) // Bob bob@example.com
+}
+```
+
+✅ **Key Takeaways:**
+- **Struct tags** (`json:"name"`) control JSON field names.
+- **Unmarshaling fills struct fields** from JSON.
+
+---
+
+## **4️⃣ What is `context.WithTimeout()` and why is it useful?**  
+### ✅ **Answer (10 Marks)**
+### **1. Why Do We Need `context.WithTimeout()`?**
+- **Ensures a function doesn’t run forever** (e.g., database queries, HTTP requests).
+- **Cancels execution** if it exceeds a set time.
+
+### **2. Example: Using `context.WithTimeout()`**
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+)
+
+func main() {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	select {
+	case <-time.After(3 * time.Second):
+		fmt.Println("Task completed") // This will NOT run
+	case <-ctx.Done():
+		fmt.Println("Timeout! Task took too long.") // This runs
+	}
+}
+```
+✅ **Output:**
+```
+Timeout! Task took too long.
+```
+
+✅ **Key Takeaway:**
+- **If work takes too long, `ctx.Done()` cancels it automatically**.
+
+---
+
+## **5️⃣ How does Go handle HTTP GET requests?**  
+### ✅ **Answer (10 Marks)**
+### **1. Making a Simple HTTP GET Request**
+```go
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+)
+
+func main() {
+	resp, err := http.Get("https://jsonplaceholder.typicode.com/todos/1")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println(string(body)) // Prints JSON response
+}
+```
+✅ **Output:**
+```json
+{
+  "userId": 1,
+  "id": 1,
+  "title": "delectus aut autem",
+  "completed": false
+}
+```
+
+✅ **Key Takeaways:**
+- `http.Get(url)` → Sends a GET request.
+- `io.ReadAll(resp.Body)` → Reads response data.
+- `defer resp.Body.Close()` → Frees memory.
+
+---
+
+## **6️⃣ How do you create an HTTP server in Go?**  
+### ✅ **Answer (10 Marks)**
+```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+)
+
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Hello, world!")
+}
+
+func main() {
+	http.HandleFunc("/hello", helloHandler)
+	http.ListenAndServe(":8080", nil) // Start server
+}
+```
+✅ **Output:** Visit **`http://localhost:8080/hello`**  
+```
+Hello, world!
+```
+
+✅ **Key Takeaways:**
+- `http.HandleFunc("/path", handlerFunc)` → Defines an endpoint.
+- `http.ListenAndServe(":8080", nil)` → Starts the server.
+
+---
+
+### **📌 10 Descriptive Questions with Detailed Explanations (Continued)**  
+Here are the remaining **4 questions** with in-depth explanations, ensuring you get a **full 10/10 marks per answer**.
+
+---
+
+## **7️⃣ What is structured logging in Go, and how does `log/slog` help?**  
+### ✅ **Answer (10 Marks)**
+### **1. Introduction to Logging**
+- Logging is **essential for debugging and monitoring** applications.
+- **Traditional logging** prints simple messages:
+  ```go
+  log.Println("User logged in:", userID)
+  ```
+  ❌ **Problem:** Hard to filter logs and add metadata.
+
+### **2. Why Use `log/slog` for Structured Logging?**
+✅ **1. Supports JSON logs (machine-readable format).**  
+✅ **2. Allows adding key-value metadata.**  
+✅ **3. Easier to filter logs (e.g., search logs by `userID`).**  
+
+---
+
+### **3. Example: Using `log/slog` for Structured Logging**
+```go
+package main
+
+import (
+	"log/slog"
+	"os"
+)
+
+func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger.Info("User login", "id", "john123", "role", "admin")
+}
+```
+✅ **Output (JSON format):**
+```json
+{"time":"2024-02-21T14:00:00Z","level":"INFO","msg":"User login","id":"john123","role":"admin"}
+```
+### **4. Benefits of Structured Logging**
+1. **Easy to search logs using a log aggregation tool** (e.g., Elasticsearch).
+2. **Key-value pairs help in debugging.**
+3. **Can filter logs by `userID` or `role`.**
+
+✅ **Key Takeaways:**
+- **Structured logging is better than simple text logs.**  
+- **Use `slog` to log JSON data with key-value pairs.**
+
+---
+
+## **8️⃣ What is the difference between `io.Reader` and `io.Writer`?**  
+### ✅ **Answer (10 Marks)**
+### **1. `io.Reader` vs `io.Writer`**
+| **Interface** | **Purpose** | **Method** |
+|--------------|------------|------------|
+| `io.Reader` | Reads data | `Read(p []byte) (n int, err error)` |
+| `io.Writer` | Writes data | `Write(p []byte) (n int, err error)` |
+
+### **2. Why Are They Useful?**
+✅ **1. `io.Reader` allows streaming data instead of loading it all at once.**  
+✅ **2. `io.Writer` enables writing to multiple sources (e.g., files, network, console).**  
+✅ **3. `io.Copy()` efficiently transfers data between `Reader` and `Writer`.**  
+
+---
+
+### **3. Example: Using `io.Reader` and `io.Writer`**
+```go
+package main
+
+import (
+	"fmt"
+	"io"
+	"os"
+	"strings"
+)
+
+func main() {
+	r := strings.NewReader("Hello, Go!") // io.Reader (string source)
+	w := os.Stdout                        // io.Writer (console output)
+
+	io.Copy(w, r) // Copies data from Reader to Writer
+}
+```
+✅ **Output:**
+```
+Hello, Go!
+```
+### **4. Explanation**
+- `strings.NewReader("Hello, Go!")` → Creates an `io.Reader` from a string.
+- `os.Stdout` → An `io.Writer` (console output).
+- `io.Copy(w, r)` → Reads from `r` and writes to `w` **efficiently**.
+
+✅ **Key Takeaways:**
+- **`io.Reader` is for reading data, `io.Writer` is for writing data.**
+- **`io.Copy()` transfers data between them seamlessly.**
+
+---
+
+## **9️⃣ How does Go handle time formatting?**  
+### ✅ **Answer (10 Marks)**
+### **1. Go’s Unique Time Format**
+- **Go uses a fixed reference date:**
+  ```
+  "2006-01-02 15:04:05"
+  ```
+  - **Year:** `2006`
+  - **Month:** `01`
+  - **Day:** `02`
+  - **Hour:** `15`
+  - **Minute:** `04`
+  - **Second:** `05`
+  - **Time Zone:** `MST`
+
+🚀 **Instead of using format specifiers (`YYYY-MM-DD`), Go uses this unique date.**
+
+---
+
+### **2. Example: Formatting Current Time**
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	now := time.Now()
+	formatted := now.Format("2006-01-02 15:04:05")
+	fmt.Println("Formatted Time:", formatted)
+}
+```
+✅ **Output:**
+```
+Formatted Time: 2024-02-21 14:30:00
+```
+
+---
+
+### **3. Example: Parsing a Time String**
+```go
+layout := "2006-01-02 15:04:05"
+t, _ := time.Parse(layout, "2023-12-25 10:30:00")
+fmt.Println(t)
+```
+✅ **Key Takeaways:**
+- **Go uses a fixed reference date (`2006-01-02 15:04:05`).**
+- **Use `Format()` for output and `Parse()` to read a time string.**
+
+---
+
+## **🔟 How does `http.ServeMux` improve HTTP routing?**  
+### ✅ **Answer (10 Marks)**
+### **1. What is `http.ServeMux`?**
+- **`http.ServeMux` is a built-in HTTP request multiplexer.**
+- **It routes requests to different handlers based on the URL path.**
+- **It’s more efficient than `http.HandleFunc()` for large applications.**
+
+---
+
+### **2. Example: Using `http.ServeMux`**
+```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+)
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Welcome Home!")
+}
+
+func aboutHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "About Page")
+}
+
+func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/home", homeHandler)
+	mux.HandleFunc("/about", aboutHandler)
+
+	http.ListenAndServe(":8080", mux)
+}
+```
+
+✅ **How it Works:**
+- Requests to **`/home`** go to `homeHandler`.
+- Requests to **`/about`** go to `aboutHandler`.
+
+---
+
+### **3. Why is `http.ServeMux` Better?**
+✅ **1. More Efficient Routing** → Uses a **tree-based structure**, making it **faster** than `http.HandleFunc()`.  
+✅ **2. Clearer Code Organization** → Keeps all routes in **one place**.  
+✅ **3. Supports Middleware** → Can wrap handlers with logging, authentication, etc.
+
+---
+
+## **🚀 Final Summary**
+| **Question** | **Main Takeaway** |
+|-------------|-------------------|
+| `io.Reader` | Reads data efficiently in chunks. |
+| Monotonic Time | Prevents errors due to clock changes. |
+| JSON Handling | Uses `Marshal` and `Unmarshal` for JSON conversion. |
+| `context.WithTimeout` | Ensures operations don’t hang indefinitely. |
+| HTTP Client (`http.Get`) | Fetches data from APIs efficiently. |
+| HTTP Server (`ServeMux`) | Routes requests efficiently in a web server. |
+| `log/slog` | Structured logging with key-value metadata. |
+| `io.Writer` | Writes data efficiently (e.g., to files or networks). |
+| `time.Format()` | Uses `2006-01-02 15:04:05` for date formatting. |
+| `http.ServeMux` | A better way to handle multiple routes in a web server. |
+
+✅ **Would you like example-based exercises to test these concepts?** 🚀
+
+**/
