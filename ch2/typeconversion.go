@@ -64,3 +64,64 @@ func Const() {
 	fmt.Println(x)
 	fmt.Println(y)
 }
+
+func Arrays(){
+	var x [3]*string
+	y := [3]*string{new(string), new(string), new(string)}
+
+	fmt.Println("X: ",x)
+	*y[1]="6"
+	fmt.Println("Y: ",y)
+	fmt.Println("Y[1]: ",*y[2])
+	x=y
+	fmt.Println("X: ",x)
+}
+func Modify(x *int){
+
+	/*
+	
+	*/
+	fmt.Println("x:",x)
+	// a:=20
+	// x=&a
+	*x=10
+	fmt.Println("modification call by value:",x)}
+
+func Modify2(x int){
+	fmt.Println("x:",x)
+	x=10
+	fmt.Println("modification call by value:",x)
+}
+
+func Ex(){
+	var a int
+	if(a==0){
+		fmt.Println("true",a)
+	}
+	// a,ok:=a
+	var arr [2]int
+	fmt.Println(arr,arr[0],arr[1])
+	if(arr[1]==0){
+		fmt.Println("true")
+	}
+}
+func Append(){
+	slice := []int{10, 20, 30, 40, 50}
+
+// Create a new slice.
+// Contains a length of 2 and capacity of 4 elements.
+newSlice := slice[1:3]
+
+// Allocate a new element from capacity.
+// Assign the value of 60 to the new element.
+fmt.Println("OG:",slice)
+fmt.Println("Copy:",newSlice)
+newSlice = append(newSlice, slice...)
+// newSlice=append(newSlice, 70)
+// newSlice=append(newSlice, 80)
+
+// newSlice=append(newSlice, 80)
+fmt.Println("OG after mod",slice)
+fmt.Println("new after mod:",newSlice)
+
+}

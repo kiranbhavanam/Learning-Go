@@ -23,7 +23,7 @@ terminate(ctx)
 func terminate(ctx context.Context){
 
 	select {
-	case <-time.After(5*time.Second):
+	case <-time.After(3*time.Second):
 		fmt.Println("executed successfully")
 	// case <-time.After(3*time.Second):
 	// 	fmt.Println("executed successfully")

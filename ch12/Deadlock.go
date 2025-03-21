@@ -26,5 +26,6 @@ func Deadlock() {
 	// ch1<-22
 	// fmt.Println("writing into ch1 is done, reading from ch2:")
 	// message:=<-ch2
-	// fmt.Println("reading done form ch2, ",message) generates a deadlock
+	// fmt.Println("reading done form ch2, ",message) //generates a deadlock
+	
 }

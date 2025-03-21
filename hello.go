@@ -1,12 +1,14 @@
 package main
 
 import (
-	// "hello_world/ch3"
+	// "fmt"
+	"hello_world/ch5"
 	// "hello_world/ch6"
 	// "hello_world/ch3"
 	// "hello_world/ch5"
 	// "hello_world/ch7"
-	// "hello_world/ch13"
+	// "hello_world/ch12"
+	// "hello_world/ch7"
 	// "hello_world/ch14"
 )
 
@@ -80,5 +82,17 @@ func main() {
 	// ch14.ControllTimeout()
 	// ch14.ContextCancel()
 	// ch14.Metadata()
-	Main()
+	// Main()
+	// ch2.Append()
+	// a:=5
+	// b:=5
+	// ch2.Modify2(a)
+	// fmt.Println("a: ",a)
+	// ch2.Modify(&b)
+	// fmt.Println("b: ",b)
+	ch5.Sender()
+	// ch2.Ex()
+	// ch7.Master2()
+	
+
 }

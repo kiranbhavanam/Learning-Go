@@ -8,8 +8,8 @@ type person struct {
 	marks []int
 }
 
-func reciever(a int, b string, c map[int]int, p person) {
-	a = 55
+func reciever(a *int, b string, c map[int]int, p person) {
+	*a = 55
 	b = "kiran"
 	c[1] = 999
 	p.fname = "reddy"
@@ -23,6 +23,6 @@ func Sender() {
 	r := map[int]int{1: 22, 2: 44}
 	s := person{"kumar reddy", 22, []int{75, 76}}
 	fmt.Println(p, q, r, s)
-	reciever(p, q, r, s)
+	reciever(&p, q, r, s)
 	fmt.Println(p, q, r, s)
 }

@@ -9,3 +9,4 @@ func main(){
 	
 	
 }
+//star method : situation task action result. 
